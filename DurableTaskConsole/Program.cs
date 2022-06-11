@@ -1,18 +1,8 @@
 ﻿using DurableTaskConsole;
+using DurableTaskConsole.Orchestrations;
 
 var host = CreateHostBuilder(args).Build();
 await host.StartAsync();
-
-/*
- const string sbConnectionString = "";
- IOrchestrationServiceInstanceStore instanceStore = new AzureTableInstanceStore(demoHubName, storageConnectionString);
- var blobStore = new AzureStorageBlobStore(demoHubName, storageConnectionString);
- ServiceBusOrchestrationServiceSettings orchestrationServiceSettings = new();
-
-// Cannot use basic tier service bus instance
-var serviceBusOrchestrationServiceAndClient = new ServiceBusOrchestrationService(sbConnectionString, demoHubName, instanceStore,
-    blobStore, orchestrationServiceSettings);
-*/
 
 // Create the client
 var taskHubClient = host.Services.GetRequiredService<TaskHubClient>();
@@ -39,10 +29,15 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
         const string demoHubName = "DemoHubName";
 
         var storageConnectionString = hostCtx.Configuration["DurableTask:AzureStorageConnection"];
+        var sbConnectionString = hostCtx.Configuration["DurableTask:ServiceBusConnection"];
            
-        services.AddDurableTaskHubWorker(demoHubName, storageConnectionString, new[] {typeof(SimpleOrchestration)},
+        /*services.AddDurableTaskHubWorker(demoHubName, storageConnectionString, new[] {typeof(SimpleOrchestration)},
+            new[] {typeof(EchoTask)});*/
+        
+        services.AddDurableServiceBusTaskHubWorker(demoHubName, sbConnectionString, storageConnectionString, new[] {typeof(SimpleOrchestration)},
             new[] {typeof(EchoTask)});
 
-        services.AddTaskHubClient(demoHubName, storageConnectionString);
+        // services.AddTaskHubClient(demoHubName, storageConnectionString);
+        services.AddTaskHubClientSb(demoHubName, sbConnectionString, storageConnectionString);
         services.AddHostedService<TaskHubBackgroundWorker>();
     });

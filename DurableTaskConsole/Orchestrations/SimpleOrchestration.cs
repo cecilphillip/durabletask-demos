@@ -1,4 +1,4 @@
-namespace DurableTaskConsole;
+namespace DurableTaskConsole.Orchestrations;
 
 public class SimpleOrchestration : TaskOrchestration<string, string>
 {
